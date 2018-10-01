@@ -1,18 +1,12 @@
-version: "3"
+version: "2"
 services:
   sqlserver:
+    container_name: test-sqlserver
     image: 101100/integration-tests:latest
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
+    restart: always
     ports:
       - "137-138:137-138/udp"
       - "139:139"
       - "445:445"
       - "1433:1433"
-    networks:
-      - webnet
-networks:
-  webnet:
-
+    network_mode: bridge
