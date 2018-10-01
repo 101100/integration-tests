@@ -19,7 +19,7 @@ COPY smb.conf /etc/samba/smb.conf
 EXPOSE 137/udp 138/udp 139 445
 
 # Configure supervisor to run SQL and Samba
-RUN mkdir -p /var/log/supervisord
+RUN mkdir -p /var/log/supervisor
 COPY supervisor.d/*.conf /etc/supervisor/conf.d/
 
 # Add Tini
