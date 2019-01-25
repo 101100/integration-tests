@@ -27,23 +27,25 @@ Note that below you should replace `jasonh` with your Pandell username.
 
 1. Create the SQL server container. You can do this directly with this command:
     ```
-    docker run -d --rm --name test-sqlserver --restart always -p 137-138:137-138/udp -p 139:139 -p 445:445 -p 1433:1433 101100/integration-tests
+    docker run -d --name test-sqlserver --restart always -p 137-138:137-138/udp -p 139:139 -p 445:445 -p 1433:1433 101100/integration-tests
     ```
 
 2. Determine your docker VM IP address:
     ```
-    docker-machine ip jasonh-docker-vm
+    $DockerIpAddress = docker-machine ip jasonh-docker-vm
+    Write-Host $DockerIpAddress
     ```
 
-3. Set Pli SQL server environment variable. (Replace `<ip-address>` with the VM IP address you found in the last step.)
+3. Set Pli SQL server environment variable.
     ```
-    [Environment]::SetEnvironmentVariable("PLI_TEST_SQLSERVERS", "[{ host: '<ip-address>', share: '\\\\<ip-address>\\Temp', path: '/temp/', username: 'sa', password: 'p@ssw0rd' }]", "User")
+    [Environment]::SetEnvironmentVariable("PLI_TEST_SQLSERVERS", "[{ host: '$DockerIpAddress', share: '\\\\$DockerIpAddress\\Temp', path: '/temp/', username: 'sa', password: 'p@ssw0rd' }]", "User")
     [Environment]::SetEnvironmentVariable("PLI_TEST_KEEPMDF", "true", "User")
     ```
 
     **Note**: if you are updating upgrade tasks, you may need to clear out the saved templates:
     ```
-    Remove-Item -Force \\192.168.111.164\temp\*.mdf
+    $DockerIpAddress = docker-machine ip jasonh-docker-vm
+    Remove-Item -Force \\$DockerIpAddress\temp\*.mdf
     ```
 
 4. Run tests!
