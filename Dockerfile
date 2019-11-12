@@ -1,11 +1,13 @@
 # Use an official Python runtime as a parent image
-FROM mcr.microsoft.com/mssql/server:2017-latest
+FROM mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
 
 # Set environment variables for SQL server
 ENV ACCEPT_EULA "Y"
 ENV SA_PASSWORD "p@ssw0rd"
+ENV MSSQL_PID "Standard"
 
 # Install Samba for integration test linking
+USER root
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         samba \
