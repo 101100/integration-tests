@@ -1,27 +1,38 @@
-Use Docker to set up SQL for integration tests:
+Use Docker to set up MS SQL Server for integration tests.  This provides SQL
+server along with a shared path that is accesible via an SMB share to facilitate
+backup file movement.
 
-## Ensure Docker is set up on your machine
 
-Note that below you should replace `jasonh` with your Pandell username.
+## Set up Docker on your machine
 
-1. Install `docker` (from [here](https://download.docker.com/)) and `docker-machine` (from [here](https://github.com/docker/machine/releases/latest)).
+### Windows Instructions
 
-2. Add your user to the `Hyper-V Administrators` group so that `docker-machine` can create a VM. From an administrative console, type:
+Note that below you should replace `jasonh` with your Windows username.
+
+1. Install `docker` (from [here](https://download.docker.com/)) and
+   `docker-machine` (from
+   [here](https://github.com/docker/machine/releases/latest)).
+
+2. Add your user to the `Hyper-V Administrators` group so that `docker-machine`
+   can create a VM. From an administrative console, type:
     ```
     net localgroup "Hyper-V Administrators" NET\jasonh /add
     ```
 
 3. Log out and back in (to capture new group).
 
-4. Create Docker machine to run container in. The VM must have at least 2 GB of RAM for the Linux version of MS SQL Server
+4. Create Docker machine to run container in. The VM must have at least 2 GB of
+   RAM for the Linux version of MS SQL Server
     ```
     docker-machine create --driver hyperv --hyperv-memory 4096 --hyperv-cpu-count 2 jasonh-docker-vm
     ```
 
-5. Set environment variables so docker can connect to VM.  (This must be done once per terminal session if you don't add it to your profile.)
+5. Set environment variables so docker can connect to VM.  (This must be done
+   once per terminal session if you don't add it to your profile.)
     ```
     & "$Env:CloudRoot\Apps\Bin\docker-machine.exe" env jasonh-docker-vm | Invoke-Expression
     ```
+
 
 ## Create container for integration tests
 
@@ -42,7 +53,8 @@ Note that below you should replace `jasonh` with your Pandell username.
     [Environment]::SetEnvironmentVariable("PLI_TEST_KEEPMDF", "true", "User")
     ```
 
-    **Note**: if you are updating upgrade tasks, you may need to clear out the saved templates:
+    **Note**: if you are updating upgrade tasks, you may need to clear out the
+    saved templates:
     ```
     $DockerIpAddress = docker-machine ip jasonh-docker-vm
     Remove-Item -Force \\$DockerIpAddress\temp\*.mdf
@@ -53,12 +65,30 @@ Note that below you should replace `jasonh` with your Pandell username.
     .\IntegrationTest-Debug.cmd
     ```
 
-    **Note**: if you want to run tests from an IDE, you will need to restart it after setting the environment variable.
+    **Note**: if you want to run tests from an IDE, you will need to restart it
+    after setting the environment variable.
 
-Advantages:
-- No Windows server install.
-- Learn a new technology!
 
-Disadvantage:
-- Tests run slow...  I'm going to get an exact comparison, but it seems slower.
-- SQL version is not exactly the same (could be an advantage when you also consider that TeamCity will use the "correct" version).
+## Re-creating the image from the GitHub repo
+
+If you chose these steps, you can use your image instead of
+`101100/integration-tests`.  Note that below you should replace `101100` with
+your Docker Hub username.
+
+1. Clone the repository:
+    ```
+    git clone git@github.com:101100/integration-tests.git
+    ```
+
+2. Build the container:
+    ```
+    docker build -t integration-tests .
+    ```
+
+3. (Optional) Log in using `docker login`, tag the image and push it container to Docker Hub:
+    ```
+    docker tag integration-tests 101100/integration-tests:copy-of-MS-tag
+    docker tag integration-tests 101100/integration-tests:latest
+    docker push 101100/integration-tests:copy-of-MS-tag
+    docker push 101100/integration-tests:latest
+    ```
