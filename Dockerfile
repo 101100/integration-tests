@@ -1,10 +1,11 @@
-# Use an official Python runtime as a parent image
+# Use an official SQL Server runtime as a parent image
 FROM mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
 
 # Set environment variables for SQL server
 ENV ACCEPT_EULA "Y"
 ENV SA_PASSWORD "p@ssw0rd"
 ENV MSSQL_PID "Standard"
+ENV MSSQL_BACKUP_DIR "/sqlbackups"
 
 # Install Samba for integration test linking
 USER root
@@ -16,7 +17,7 @@ RUN apt-get update \
 
 # Configure Samba shared directory
 COPY smb.conf /etc/samba/smb.conf
-RUN mkdir -p /temp && chmod 777 /temp && chmod 644 /etc/samba/smb.conf
+RUN mkdir -p /sqlbackups && chmod 777 /sqlbackups && chmod 644 /etc/samba/smb.conf
 
 # Expose SMB ports
 EXPOSE 137/udp 138/udp 139 445
