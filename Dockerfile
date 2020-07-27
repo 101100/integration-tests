@@ -27,7 +27,7 @@ COPY supervisor.d/*.conf /etc/supervisor/conf.d/
 RUN mkdir -p /var/log/supervisor && chmod 644 /etc/supervisor/conf.d/*.conf
 
 # Add Tini
-ENV TINI_VERSION v0.18.0
+ENV TINI_VERSION v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
 ENTRYPOINT ["/tini", "--"]
