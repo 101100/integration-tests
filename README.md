@@ -49,7 +49,7 @@ Note that below you should replace `jasonh` with your Windows username.
 
 3. Set Pli SQL server environment variable.
     ```
-    [Environment]::SetEnvironmentVariable("PLI_TEST_SQLSERVERS", "[{ host: '$DockerIpAddress', share: '\\\\$DockerIpAddress\\Temp', path: '/temp/', username: 'sa', password: 'p@ssw0rd' }]", "User")
+    [Environment]::SetEnvironmentVariable("PLI_TEST_SQLSERVERS", "[{ host: '$DockerIpAddress', share: '\\\\$DockerIpAddress\\SqlBackups', path: '/sqlbackups/', username: 'sa', password: 'p@ssw0rd' }]", "User")
     [Environment]::SetEnvironmentVariable("PLI_TEST_KEEPMDF", "true", "User")
     ```
 
@@ -57,7 +57,7 @@ Note that below you should replace `jasonh` with your Windows username.
     saved templates:
     ```
     $DockerIpAddress = docker-machine ip jasonh-docker-vm
-    Remove-Item -Force \\$DockerIpAddress\temp\*.mdf
+    Remove-Item -Force \\$DockerIpAddress\SqlBackups\*.mdf
     ```
 
 4. Run tests!
