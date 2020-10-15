@@ -1,5 +1,5 @@
 # Use an official SQL Server runtime as a parent image
-FROM mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
+FROM mcr.microsoft.com/mssql/server:2017-CU21-ubuntu-16.04
 
 # Set environment variables for SQL server
 ENV ACCEPT_EULA "Y"
@@ -7,17 +7,20 @@ ENV SA_PASSWORD "p@ssw0rd"
 ENV MSSQL_PID "Standard"
 ENV MSSQL_BACKUP_DIR "/sqlbackups"
 
-# Install Samba for integration test linking
+# Install Samba for integration test linking and
+# supervisor to run two programs in one docker container
 USER root
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         samba \
         supervisor \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure Samba shared directory
 COPY smb.conf /etc/samba/smb.conf
 RUN mkdir -p /sqlbackups && chmod 777 /sqlbackups && chmod 644 /etc/samba/smb.conf
+RUN echo "$SA_PASSWORD\n$SA_PASSWORD" | smbpasswd -a -s root
 
 # Expose SMB ports
 EXPOSE 137/udp 138/udp 139 445
