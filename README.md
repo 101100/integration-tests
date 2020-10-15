@@ -1,72 +1,23 @@
-Use Docker to set up MS SQL Server for integration tests.  This provides SQL
-server along with a shared path that is accesible via an SMB share to facilitate
-backup file movement.
+This docker image provides SQL Server along with a shared path that is accesible
+via an SMB share to facilitate backup file movement.
 
 
-## Set up Docker on your machine
+## Setting it up
 
-### Windows Instructions
+To use this image, run it with Docker:
 
-Note that below you should replace `jasonh` with your Windows username.
+```
+docker run -d --name sqlserver --restart always -p 137-138:137-138/udp -p 139:139 -p 445:445 -p 1433:1433 101100/integration-tests
+```
 
-1. Install `docker` (from [here](https://download.docker.com/)) and
-   `docker-machine` (from
-   [here](https://github.com/docker/machine/releases/latest)).
+- You can pass in other [SQL Server configuration environment variables](https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-configure-environment-variables?view=sql-server-linux-2017) by adding `-e` flags on the command.  For instance, you can use a different edition of SQL server (e.g. “Developer”, “Standard” or “Enterprise”) with the `MSSQL_PID` flag. All together, this would require adding something like `-e "MSSQL_PID=Standard"` to the above command.
+- By default, the `sa` user password and share password are both `p@ssw0rd`. You can change the password by setting the `SA_PASSWORD` environment variable.
 
-2. Add your user to the `Hyper-V Administrators` group so that `docker-machine`
-   can create a VM. From an administrative console, type:
-    ```
-    net localgroup "Hyper-V Administrators" NET\jasonh /add
-    ```
+The share has a path of `SqlBackups` and is available inside the container at `/sqlbackups`. If you are using Windows, you can preset the password that windows will use to connect to the share using the `net` command. If Docker is running in a VM and that VM is available as the hostname `docker-vm`, then the command would be:
 
-3. Log out and back in (to capture new group).
-
-4. Create Docker machine to run container in. The VM must have at least 2 GB of
-   RAM for the Linux version of MS SQL Server
-    ```
-    docker-machine create --driver hyperv --hyperv-memory 4096 --hyperv-cpu-count 2 jasonh-docker-vm
-    ```
-
-5. Set environment variables so docker can connect to VM.  (This must be done
-   once per terminal session if you don't add it to your profile.)
-    ```
-    & "$Env:CloudRoot\Apps\Bin\docker-machine.exe" env jasonh-docker-vm | Invoke-Expression
-    ```
-
-
-## Create container for integration tests
-
-1. Create the SQL server container. You can do this directly with this command:
-    ```
-    docker run -d --name test-sqlserver --restart always -p 137-138:137-138/udp -p 139:139 -p 445:445 -p 1433:1433 101100/integration-tests
-    ```
-
-2. Determine your docker VM IP address:
-    ```
-    $DockerIpAddress = docker-machine ip jasonh-docker-vm
-    Write-Host $DockerIpAddress
-    ```
-
-3. Set Pli SQL server environment variable.
-    ```
-    [Environment]::SetEnvironmentVariable("PLI_TEST_SQLSERVERS", "[{ host: '$DockerIpAddress', share: '\\\\$DockerIpAddress\\SqlBackups', path: '/sqlbackups/', username: 'sa', password: 'p@ssw0rd' }]", "User")
-    [Environment]::SetEnvironmentVariable("PLI_TEST_KEEPMDF", "true", "User")
-    ```
-
-    **Note**: if you are updating upgrade tasks, you may need to clear out the
-    saved templates:
-    ```
-    $DockerIpAddress = docker-machine ip jasonh-docker-vm
-    Remove-Item -Force \\$DockerIpAddress\SqlBackups\*.mdf
-    ```
-
-4. Run tests!
-    ```
-    .\IntegrationTest-Debug.cmd
-    ```
-
-    **Note**: if you want to run tests from an IDE, you will need to restart it
-    after setting the environment variable.
+```
+net use \\docker-vm\SqlBackups /user:root p@ssw0rd
+```
 
 
 ## Re-creating the image from the GitHub repo
