@@ -1,5 +1,5 @@
 # Use an official SQL Server runtime as a parent image
-FROM mcr.microsoft.com/mssql/server:2017-CU21-ubuntu-16.04
+FROM mcr.microsoft.com/mssql/server:2019-CU13-ubuntu-20.04
 
 # Set environment variables for SQL server
 ENV ACCEPT_EULA "Y"
