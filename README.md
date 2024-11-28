@@ -1,3 +1,9 @@
+# This is now archived
+
+It was most useful before on Windows when using a VM as a Docker host, but now it seems to work better to use WSL2 which allows you to mount a Windows directory for backup transfers.
+
+---
+
 This docker image provides SQL Server along with a shared path that is accesible
 via an SMB share to facilitate backup file movement.
 
